@@ -87,6 +87,7 @@ class TaskController extends BaseController
                 Miner::Current()->setStatus(0);
 
                 $keyY = substr($fileContent, 0x110, 16);
+                $hexKeyY = bin2hex($keyY);
                 $sha = hex2bin(hash("sha256", $keyY));
                 $checkId0 = bin2hex(strrev(substr($sha, 0, 4)) .
                     strrev(substr($sha, 4, 4)) .
@@ -102,10 +103,9 @@ class TaskController extends BaseController
                 if ($retData[0]['state'] != 4 && $retData[0]['state'] != 3) {
                     echo "success";exit;
                 }
-
                 $statement = $dbCon->prepare('update seedqueue set state = 5, keyY = :keyY where taskId like :taskId');
                 $statement->bindParam('taskId', $taskId);
-                $statement->bindParam('keyY', bin2hex($keyY));
+                $statement->bindParam('keyY', $hexKeyY);
                 $statement->execute();
 
                 if (isset($_REQUEST['minername']) && strlen($_REQUEST['minername']) > 1) {
